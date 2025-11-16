@@ -1,33 +1,30 @@
-# bookshelf/views.py (Secure Data Access)
+# bookshelf/views.py
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import permission_required
-from .models import Book 
+from django.http import HttpResponseForbidden 
 
-# Import necessary modules for form validation (if you use forms)
-from django import forms # Hypothetical form
+from .models import Book 
+# --- ADD THIS LINE ---
+from .forms import ExampleForm # <--- Correctly imports the new form
+# ---------------------
 
 # Secure Search Example (Prevents SQL Injection):
 def book_list(request):
+# ... (rest of book_list view remains the same) ...
+
+@permission_required('bookshelf.can_create', raise_exception=True)
+def book_create(request):
     """
-    Retrieves books using the ORM's filter() method, which automatically 
-    parameterizes the query, preventing SQL injection.
+    Restricts access to users with the 'can_create' permission (Editors/Admins).
     """
-    query = request.GET.get('q')
+    # NOTE: You'd typically instantiate and use the form here, e.g.,
+    # form = ExampleForm(request.POST or None)
     
-    if query:
-        # SECURE: Using the ORM (filter) ensures input is treated as data, not code.
-        books = Book.objects.filter(title__icontains=query) 
-        
-        # INSECURE EXAMPLE (DON'T DO THIS):
-        # books = Book.objects.raw(f"SELECT * FROM bookshelf_book WHERE title LIKE '%%{query}%%'")
-    else:
-        books = Book.objects.all()
+    if request.method == 'POST':
+        # Placeholder logic for form handling and saving
+        return redirect('book_list')
+    
+    return render(request, 'bookshelf/book_form.html', {'action': 'Create'})
 
-    return render(request, 'bookshelf/book_list.html', {'books': books, 'query': query})
-
-# NOTE ON DOCUMENTATION: All data access uses the Django ORM's methods (filter, get, all). 
-# This automatically handles SQL parameterization, which is the primary defense against 
-# SQL injection attacks. Direct string concatenation of user input into raw SQL is avoided.
-# User input validation should be enforced via Django Forms or serializers before saving data.
-# ... (book_create, book_edit, book_delete views remain the same as previous task) ...
+# ... (rest of views remain the same) ...
