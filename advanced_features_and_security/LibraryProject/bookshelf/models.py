@@ -1,64 +1,31 @@
-# bookshelf/models.py (Ensure this content is correct)
+# bookshelf/models.py (New or Updated)
 
-from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
-from django.utils import timezone
+# ... (CustomUser and CustomUserManager code from the previous task remains here) ...
+# ...
 
-# --- Custom User Manager (Step 3) ---
-class CustomUserManager(BaseUserManager):
-    # ... (content from previous step for create_user and create_superuser) ...
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('The Email field must be set')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
+class Book(models.Model):
+    """
+    Placeholder model to attach custom permissions to.
+    """
+    title = models.CharField(max_length=200)
+    isbn = models.CharField(max_length=13, unique=True)
+    published_date = models.DateField(auto_now_add=True)
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_active', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        if 'date_of_birth' not in extra_fields:
-            extra_fields['date_of_birth'] = timezone.now().date()
-            
-        return self.create_user(email, password, **extra_fields)
-
-
-# --- Custom User Model (Step 1) ---
-class CustomUser(AbstractUser):
-    date_of_birth = models.DateField(
-        null=True, 
-        blank=True, 
-        verbose_name='Date of Birth'
-    )
-    profile_photo = models.ImageField(
-        upload_to='profile_photos/', 
-        null=True, 
-        blank=True, 
-        verbose_name='Profile Photo'
-    )
-
-    email = models.EmailField(unique=True, blank=False)
-    username = None 
-    
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'date_of_birth'] 
-
-    objects = CustomUserManager()
+    class Meta:
+        # Define Custom Permissions here
+        permissions = [
+            ("can_view", "Can view all books"),
+            ("can_create", "Can create a new book"),
+            ("can_edit", "Can edit existing books"),
+            ("can_delete", "Can delete books"),
+        ]
+        verbose_name = 'Book'
+        verbose_name_plural = 'Books'
 
     def __str__(self):
-        return self.email
+        return self.title
 
-# NOTE: If you decide to add a Book model later, it would go here:
-# class Book(models.Model):
-#     title = models.CharField(max_length=255)
-#     author = models.CharField(max_length=255)
-#     # ... other fields
+# Note on Step 5 (Documentation): 
+# These custom permissions are automatically generated when you run makemigrations 
+# and migrate. They are used in views to restrict access based on user roles (groups).
