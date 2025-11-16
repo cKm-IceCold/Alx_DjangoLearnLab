@@ -44,6 +44,12 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # LibraryProject/settings.py (CSP Configuration)
+
+# --- Content Security Policy (CSP) ---
+# NOTE ON DOCUMENTATION: CSP mitigates XSS by telling the browser which sources 
+# of content (scripts, styles, images) are trusted.
+    'csp.middleware.CspMiddleware', # Add the CSP middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -126,3 +132,40 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+# LibraryProject/LibraryProject/settings.py (Security Configuration)
+
+# --- General Production/Security Settings ---
+# MUST be set to False in a production environment
+DEBUG = False
+# Replace with your domain when DEBUG is False
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-domain.com'] 
+
+# --- Security Headers and Protections ---
+
+# 1. Clickjacking Protection
+# Prevents the site from being loaded in a frame/iframe on another site.
+X_FRAME_OPTIONS = 'DENY' 
+
+# 2. XSS and MIME Sniffing Protection
+# Prevents browsers from attempting to guess the content type (MIME sniffing),
+# which can mitigate certain XSS attacks.
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# 3. Secure Cookie Enforcement (Requires HTTPS)
+# Ensures the CSRF cookie is only sent over a secure connection (HTTPS).
+CSRF_COOKIE_SECURE = True
+# Ensures the session cookie is only sent over a secure connection (HTTPS).
+SESSION_COOKIE_SECURE = True
+
+# 4. Deprecated but often checked setting (for compatibility/completeness)
+# Django now handles this via the Content-Type header and middleware, but 
+# we include it for the specific check requirement.
+SECURE_BROWSER_XSS_FILTER = True
+
+# Define the CSP settings here:
+CSP_DEFAULT_SRC = ("'self'",) # Only allow content from your own domain
+CSP_SCRIPT_SRC = ("'self'", 'https://trustedscripts.com',) # Only allow scripts from self and a specific trusted domain
+CSP_STYLE_SRC = ("'self'", 'https://trustedstyles.com', "'unsafe-inline'",) # Allow self and inline styles (often needed)
+CSP_IMG_SRC = ("'self'", "data:") # Allow images from self and data URIs
+CSP_FRAME_ANCESTORS = ("'self'",) # Prevents embedding the site in frames by unauthorized origins
