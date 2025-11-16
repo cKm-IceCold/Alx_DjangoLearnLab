@@ -1,0 +1,15 @@
+<h1>Bookshelf Catalog</h1>
+
+{% if books %}
+    <ul>
+    {% for book in books %}
+        <li>{{ book.title }} (ISBN: {{ book.isbn }})</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No books found in the catalog.</p>
+{% endif %}
+
+<p>
+    <a href="{% url 'book_create' %}">Add New Book</a>
+</p>
