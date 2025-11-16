@@ -177,3 +177,18 @@ SECURE_BROWSER_XSS_FILTER = True
 # These settings ensure the application is served securely via HTTPS, 
 # protects against several common web vulnerabilities (XSS, Clickjacking, MiTM attacks),
 # and instructs the browser to remember the secure connection requirement (HSTS).
+
+
+# LibraryProject/LibraryProject/settings.py (Updated Security Configuration)
+
+# --- Proxy-Specific Security Headers ---
+
+# Django needs this setting when running behind a reverse proxy (like Nginx) 
+# that terminates SSL and passes the original protocol via headers.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# NOTE ON DOCUMENTATION: 
+# Setting SECURE_PROXY_SSL_HEADER is crucial when deploying behind a reverse proxy. 
+# It tells Django to trust the value of the 'X-Forwarded-Proto' header provided 
+# by the proxy to correctly determine if the original request was HTTPS. This 
+# ensures Django correctly enforces SECURE_SSL_REDIRECT and sets secure cookies.
