@@ -133,39 +133,47 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
 
-# LibraryProject/LibraryProject/settings.py (Security Configuration)
+# LibraryProject/LibraryProject/settings.py
 
-# --- General Production/Security Settings ---
-# MUST be set to False in a production environment
+# --- Security Configurations for Task 2 & Task 3 ---
+
+# 1. Mandatory Settings for Production
 DEBUG = False
-# Replace with your domain when DEBUG is False
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-domain.com'] 
 
-# --- Security Headers and Protections ---
 
-# 1. Clickjacking Protection
-# Prevents the site from being loaded in a frame/iframe on another site.
+# --- Step 1: Configure Django for HTTPS Support ---
+
+# Redirects all non-HTTPS requests to HTTPS. Essential for enforcing security.
+SECURE_SSL_REDIRECT = True 
+
+# HTTP Strict Transport Security (HSTS) settings.
+# Instructs browsers to ONLY access the site via HTTPS for the specified duration (31,536,000 seconds = 1 year).
+SECURE_HSTS_SECONDS = 31536000 
+# Applies HSTS policy to all subdomains (e.g., mail.your-domain.com).
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# Allows the domain to be submitted to browser HSTS preload lists (requires HSTS to be active).
+SECURE_HSTS_PRELOAD = True 
+
+# --- Step 2: Enforce Secure Cookies ---
+
+# Ensures session cookie is only sent over a secure connection (HTTPS).
+SESSION_COOKIE_SECURE = True 
+# Ensures CSRF cookie is only sent over a secure connection (HTTPS).
+CSRF_COOKIE_SECURE = True
+
+# --- Step 3: Implement Secure Headers ---
+
+# Prevents the site from being loaded in a frame/iframe on another site (Clickjacking defense).
 X_FRAME_OPTIONS = 'DENY' 
 
-# 2. XSS and MIME Sniffing Protection
-# Prevents browsers from attempting to guess the content type (MIME sniffing),
-# which can mitigate certain XSS attacks.
+# Prevents browsers from MIME-sniffing a response away from the declared content-type (XSS defense).
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# 3. Secure Cookie Enforcement (Requires HTTPS)
-# Ensures the CSRF cookie is only sent over a secure connection (HTTPS).
-CSRF_COOKIE_SECURE = True
-# Ensures the session cookie is only sent over a secure connection (HTTPS).
-SESSION_COOKIE_SECURE = True
+# Enables the browser's native XSS filtering (though CSP is preferred, this is required by the check).
+SECURE_BROWSER_XSS_FILTER = True 
 
-# 4. Deprecated but often checked setting (for compatibility/completeness)
-# Django now handles this via the Content-Type header and middleware, but 
-# we include it for the specific check requirement.
-SECURE_BROWSER_XSS_FILTER = True
-
-# Define the CSP settings here:
-CSP_DEFAULT_SRC = ("'self'",) # Only allow content from your own domain
-CSP_SCRIPT_SRC = ("'self'", 'https://trustedscripts.com',) # Only allow scripts from self and a specific trusted domain
-CSP_STYLE_SRC = ("'self'", 'https://trustedstyles.com', "'unsafe-inline'",) # Allow self and inline styles (often needed)
-CSP_IMG_SRC = ("'self'", "data:") # Allow images from self and data URIs
-CSP_FRAME_ANCESTORS = ("'self'",) # Prevents embedding the site in frames by unauthorized origins
+# NOTE ON DOCUMENTATION: 
+# These settings ensure the application is served securely via HTTPS, 
+# protects against several common web vulnerabilities (XSS, Clickjacking, MiTM attacks),
+# and instructs the browser to remember the secure connection requirement (HSTS).
