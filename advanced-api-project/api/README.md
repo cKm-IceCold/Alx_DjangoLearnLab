@@ -225,6 +225,71 @@ All views with custom `perform_*` methods include additional permission checks b
 
 ---
 
+## Step 6 — Implementation Notes: Filtering, Searching, Ordering
+
+Summary
+- The BookListView exposes advanced query capabilities so clients can filter, search, and order Book results.
+- Implementation uses DRF filter backends: `DjangoFilterBackend`, `SearchFilter`, and `OrderingFilter`.
+
+Server-side setup
+1. Install django-filter:
+   ```
+   pip install django-filter
+   ```
+2. Add to `INSTALLED_APPS` and REST config (project settings):
+   ```python
+   INSTALLED_APPS += ['django_filters']
+   REST_FRAMEWORK['DEFAULT_FILTER_BACKENDS'] = [
+       'django_filters.rest_framework.DjangoFilterBackend',
+       'rest_framework.filters.SearchFilter',
+       'rest_framework.filters.OrderingFilter',
+   ]
+   ```
+
+How it is configured in the view
+- In `api/views.py` the BookListView is configured like:
+```python
+# BookListView (excerpt)
+filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+filterset_fields = ['title', 'author', 'publication_year']
+search_fields = ['title', 'author__name']           # text search on title and author name
+ordering_fields = ['title', 'publication_year', 'author']
+ordering = ['title']                                # default ordering
+```
+
+Usage examples (query parameters)
+- Filter by exact title:
+  GET /api/books/?title=Django
+- Filter by author id:
+  GET /api/books/?author=1
+- Filter by publication year:
+  GET /api/books/?publication_year=2023
+- Text search (title or author name):
+  GET /api/books/?search=python
+- Order results (ascending title):
+  GET /api/books/?ordering=title
+- Order results (descending publication year):
+  GET /api/books/?ordering=-publication_year
+- Combine filter, search and ordering:
+  GET /api/books/?publication_year=2023&search=django&ordering=title
+
+Notes and tips
+- `filterset_fields` performs exact-value filtering. For more advanced lookups (contains, icontains, range), define a FilterSet class and register it on the view.
+- `search` runs a simple text search across the configured `search_fields`.
+- `ordering` accepts any field listed in `ordering_fields`; prefix with `-` for descending.
+- Ensure serializers and model relationships (e.g., `author__name`) exist and are correct.
+
+Testing
+- Use curl/Postman to verify endpoints, include auth headers for protected endpoints.
+- Example curl (search + ordering):
+  ```
+  curl "http://localhost:8000/api/books/?search=django&ordering=-publication_year"
+  ```
+
+End of implementation notes.
+
+---
+
 ## Testing the API
 
 ### 1. Using cURL
