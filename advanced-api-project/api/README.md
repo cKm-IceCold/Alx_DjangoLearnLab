@@ -327,3 +327,55 @@ curl -X DELETE http://localhost:8000/api/books/1/delete/ \
 - Unauthenticated requests to protected endpoints return 403 Forbidden
 - Invalid data submissions return 400 Bad Request with field-specific error messages
 - Deleted resources return 204 No Content on success
+
+---
+
+## Testing Strategy
+
+Purpose
+- Verify correctness of Book API endpoints (list, detail, create, update, delete).
+- Ensure filtering, searching, and ordering behave as expected.
+- Confirm permission enforcement (authenticated vs admin/staff).
+
+Test file
+- Tests live in: `api/tests.py`
+- Test class: `BookAPITestCase` (uses Django REST Framework's APITestCase)
+
+Key test cases (what each asserts)
+- test_list_filter_by_publication_year
+  - Request: GET `/api/books/?publication_year=<year>`
+  - Asserts: 200 OK and returned books match the year filter.
+- test_search_by_title_or_author
+  - Request: GET `/api/books/?search=<term>`
+  - Asserts: 200 OK and results include expected books matching title or author.
+- test_ordering_by_publication_year_desc
+  - Request: GET `/api/books/?ordering=-publication_year`
+  - Asserts: 200 OK and results sorted descending by year.
+- test_retrieve_book_detail
+  - Request: GET `/api/books/<id>/`
+  - Asserts: 200 OK and returned object matches the requested book.
+- test_create_requires_authentication
+  - Request: POST `/api/books/create/`
+  - Asserts:
+    - Unauthenticated: 401/403
+    - Authenticated: 201 Created and object exists in DB.
+- test_update_requires_authentication
+  - Request: PATCH `/api/books/update/<id>/`
+  - Asserts:
+    - Unauthenticated: 401/403
+    - Authenticated: 200 OK and DB reflects changes.
+- test_delete_requires_admin
+  - Request: DELETE `/api/books/delete/<id>/`
+  - Asserts:
+    - Non-staff: 401/403 and object still exists
+    - Staff: 204/200 and object removed
+
+How tests are set up
+- `setUp()` creates:
+  - Two users (regular + staff)
+  - Two authors
+  - Several Book instances
+- Tests use `self.client` (DRF APIClient) and `force_authenticate()` to simulate authenticated requests.
+
+How to run tests
+- Run all tests for the api app:
