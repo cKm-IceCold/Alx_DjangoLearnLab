@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Posts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow mb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold text-blue-600">Django Blog</h1>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    {% if user.is_authenticated %}
+                        <span class="mr-4 text-gray-600">Welcome, {{ user.username }}</span>
+                        <a href="{% url 'profile' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2">Profile</a>
+                        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2">Logout</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2">Login</a>
+                        <a href="{% url 'register' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Latest Posts</h1>
+        
+        <div class="space-y-6">
+            {% for post in posts %}
+                <div class="bg-white overflow-hidden shadow rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900">{{ post.title }}</h2>
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <span>By {{ post.author.username }}</span>
+                        <span class="mx-2">•</span>
+                        <span>{{ post.published_date|date:"F j, Y" }}</span>
+                    </div>
+                    <p class="text-gray-800 leading-relaxed">{{ post.content|linebreaks }}</p>
+                </div>
+            {% empty %}
+                <div class="bg-white overflow-hidden shadow rounded-lg p-6 text-center">
+                    <p class="text-gray-600">No posts available yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

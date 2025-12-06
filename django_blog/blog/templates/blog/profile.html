@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Django Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Profile Card -->
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <div class="flex items-center gap-6 mb-8">
+                    <!-- Profile Picture -->
+                    {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="w-24 h-24 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-gray-600 text-2xl">{{ user.username|first|upper }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h2>
+                        <p class="text-gray-600">@{{ user.username }}</p>
+                        <p class="text-sm text-gray-500 mt-2">Member since {{ user.date_joined|date:"F d, Y" }}</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Info Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <p class="mt-1 text-lg text-gray-900">{{ user.email }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Phone</label>
+                        <p class="mt-1 text-lg text-gray-900">{{ profile.phone_number|default:"Not set" }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Location</label>
+                        <p class="mt-1 text-lg text-gray-900">{{ profile.location|default:"Not set" }}</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Website</label>
+                        {% if profile.website %}
+                            <a href="{{ profile.website }}" target="_blank" class="mt-1 text-lg text-blue-600 hover:text-blue-800">{{ profile.website }}</a>
+                        {% else %}
+                            <p class="mt-1 text-lg text-gray-900">Not set</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Bio -->
+                {% if profile.bio %}
+                    <div class="mb-8 pb-8 border-b border-gray-200">
+                        <label class="block text-sm font-medium text-gray-700">Bio</label>
+                        <p class="mt-2 text-gray-700">{{ profile.bio }}</p>
+                    </div>
+                {% endif %}
+                
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <a 
+                        href="{% url 'update_profile' %}"
+                        class="block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 font-medium"
+                    >
+                        Edit Profile
+                    </a>
+                    
+                    <a 
+                        href="{% url 'logout' %}"
+                        class="block w-full text-center bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 font-medium"
+                    >
+                        Logout
+                    </a>
+                    
+                    <a 
+                        href="/"
+                        class="block w-full text-center bg-gray-300 text-gray-900 py-2 px-4 rounded-md hover:bg-gray-400 transition duration-200 font-medium"
+                    >
+                        Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
