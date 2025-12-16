@@ -22,7 +22,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
 # in posts/views.py
 class CommentViewSet(viewsets.ModelViewSet):  # singular
-    queryset = Comments.objects.all()
+    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter]
