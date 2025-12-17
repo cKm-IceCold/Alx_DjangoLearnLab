@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.views import APIView
@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
-from rest_framework import generics
+from rest_framework import generics, permissions
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
