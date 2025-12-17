@@ -50,7 +50,7 @@ class LikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, post_id):
-        post = get_object_or_404(Post, id=post_id)
+        post = get_object_or_404(Post, pk=pk)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
         
         if not created:
@@ -72,7 +72,7 @@ class UnlikePostView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, post_id):
-        post = get_object_or_404(Post, id=post_id)
+        post = get_object_or_404(Post, pk=pk)
         like = Like.objects.filter(user=request.user, post=post).first()
         if like:
             like.delete()
